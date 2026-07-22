@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock Test 3 (Challenge) — AZ-305 Exam Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F9;
+  --surface:#FFFFFF;
+  --surface-alt:#EAEFF7;
+  --border:#DCE3EE;
+  --text:#101828;
+  --text-muted:#5B6478;
+  --primary:#1B4FCB;
+  --primary-dark:#123A99;
+  --accent:#2F6FED;
+  --amber:#B9750C;
+  --amber-bg:#FEF3DD;
+  --green:#177B45;
+  --green-bg:#E5F6EC;
+  --red:#C22B3A;
+  --red-bg:#FCE9EB;
+  --slate-bg:#EEF1F6;
+  --radius:12px;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+h1,h2,h3,h4{font-family:'Sora',system-ui,sans-serif;margin:0;letter-spacing:-0.01em;}
+.mono{font-family:'JetBrains Mono',monospace;}
+button{font-family:inherit;cursor:pointer;}
+.screen{display:none;}
+.screen.active{display:block;}
+a{color:var(--primary);}
+
+/* ---------- Blueprint hero motif ---------- */
+.blueprint{
+  background-color:var(--primary-dark);
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.blueprint::after{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% -10%, rgba(47,111,237,.55), transparent 55%),
+             radial-gradient(ellipse at 100% 110%, rgba(27,79,203,.5), transparent 50%);
+  pointer-events:none;
+}
+.blueprint > *{position:relative;z-index:1;}
+
+/* ---------- Landing ---------- */
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+.top-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:#C9D8FF;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  padding:6px 12px;border-radius:999px;
+}
+.hero{padding:56px 0 44px;}
+.hero h1{font-size:38px;font-weight:800;line-height:1.15;max-width:680px;margin-top:16px;}
+.hero p.sub{color:#D7E1FB;font-size:16.5px;max-width:600px;margin-top:14px;line-height:1.55;}
+.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px;}
+.stat-card{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius);padding:14px 18px;min-width:130px;backdrop-filter:blur(2px);
+}
+.stat-card .num{font-family:'Sora';font-size:22px;font-weight:700;}
+.stat-card .lbl{font-size:12px;color:#C9D8FF;margin-top:2px;}
+
+.section{padding:44px 0;}
+.section h2{font-size:24px;font-weight:700;margin-bottom:6px;}
+.section p.section-sub{color:var(--text-muted);margin-bottom:28px;font-size:15px;max-width:640px;}
+
+.mock-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:860px){.mock-grid{grid-template-columns:1fr;}}
+.mock-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;display:flex;flex-direction:column;box-shadow:var(--shadow);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.mock-card:hover{transform:translateY(-3px);box-shadow:0 4px 8px rgba(16,24,40,.06),0 16px 32px rgba(16,24,40,.09);}
+.mock-tier{
+  font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:4px 10px;border-radius:999px;display:inline-block;width:fit-content;
+}
+.tier-starter{background:var(--green-bg);color:var(--green);}
+.tier-practice{background:#E3EBFF;color:var(--primary);}
+.tier-challenge{background:var(--amber-bg);color:var(--amber);}
+.mock-card h3{font-size:19px;margin-top:12px;}
+.mock-card p{color:var(--text-muted);font-size:14px;line-height:1.5;margin-top:8px;flex-grow:0;}
+.mock-card ul{list-style:none;padding:0;margin:14px 0 20px;font-size:13.5px;color:var(--text);}
+.mock-card ul li{padding:4px 0;padding-left:20px;position:relative;color:var(--text-muted);}
+.mock-card ul li::before{content:"✓";position:absolute;left:0;color:var(--primary);font-weight:700;}
+.btn{
+  border:none;border-radius:10px;padding:12px 20px;font-weight:600;font-size:14.5px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .15s, transform .1s, box-shadow .15s;
+}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(27,79,203,.3);}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-ghost{background:var(--surface-alt);color:var(--text);}
+.btn-ghost:hover{background:var(--border);}
+.btn-block{width:100%;margin-top:auto;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.domain-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.domain-table th,.domain-table td{text-align:left;padding:13px 18px;font-size:14px;border-bottom:1px solid var(--border);}
+.domain-table th{background:var(--surface-alt);font-weight:600;color:var(--text-muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;}
+.domain-table tr:last-child td{border-bottom:none;}
+.domain-weight{font-family:'JetBrains Mono';font-weight:500;color:var(--primary);}
+
+.footer-note{padding:30px 0 50px;color:var(--text-muted);font-size:13px;text-align:center;}
+
+/* ---------- Rules / Intro screen ---------- */
+.intro-card{max-width:760px;margin:50px auto;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;}
+.intro-head{background:var(--primary-dark);color:#fff;padding:28px 32px;}
+.intro-head .tag{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#C9D8FF;font-weight:600;}
+.intro-head h2{font-size:24px;margin-top:6px;color:#fff;}
+.intro-body{padding:30px 32px;}
+.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+@media(max-width:640px){.meta-grid{grid-template-columns:repeat(2,1fr);}}
+.meta-item{background:var(--surface-alt);border-radius:10px;padding:14px;text-align:center;}
+.meta-item .v{font-family:'Sora';font-weight:700;font-size:18px;}
+.meta-item .k{font-size:11.5px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.03em;}
+.rules-box{background:var(--amber-bg);border:1px solid #F3DDA9;border-radius:10px;padding:18px 20px;margin-bottom:24px;}
+.rules-box h4{color:var(--amber);font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rules-box ul{margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:#6b4c0f;}
+.intro-actions{display:flex;gap:12px;justify-content:flex-end;}
+
+/* ---------- Exam screen ---------- */
+.exam-header{
+  position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.exam-header .brand{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:700;font-size:15px;}
+.brand .logo-dot{width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block;}
+.exam-stats{display:flex;align-items:center;gap:18px;font-size:13.5px;color:var(--text-muted);flex-wrap:wrap;}
+.exam-stats b{color:var(--text);font-weight:600;}
+.timer-pill{
+  font-family:'JetBrains Mono';font-weight:600;font-size:15px;
+  background:var(--slate-bg);padding:7px 14px;border-radius:8px;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.timer-pill.low{background:var(--red-bg);color:var(--red);}
+.timer-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+.timer-pill.low .dot{background:var(--red);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.exam-body{display:grid;grid-template-columns:290px 1fr;gap:0;max-width:1280px;margin:0 auto;min-height:calc(100vh - 62px);}
+@media(max-width:900px){.exam-body{grid-template-columns:1fr;}}
+
+.nav-panel{border-right:1px solid var(--border);padding:20px;background:var(--surface);overflow-y:auto;}
+@media(max-width:900px){.nav-panel{border-right:none;border-bottom:1px solid var(--border);}}
+.nav-panel h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:12px;}
+.legend{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;font-size:12.5px;color:var(--text-muted);}
+.legend span{display:inline-flex;align-items:center;gap:7px;}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.leg-current{background:var(--primary);}
+.leg-answered{background:var(--green);}
+.leg-flagged{background:var(--amber);}
+.leg-unanswered{background:var(--surface-alt);border:1px solid var(--border);}
+
+.qnav-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:22px;}
+.qnav-btn{
+  aspect-ratio:1;border:1px solid var(--border);border-radius:7px;background:var(--surface-alt);
+  font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--text);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.qnav-btn.answered{background:var(--green);color:#fff;border-color:var(--green);}
+.qnav-btn.flagged::after{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--amber);border-radius:50%;border:1.5px solid var(--surface);}
+.qnav-btn.current{outline:2.5px solid var(--primary);outline-offset:1px;}
+
+.progress-mini{margin-bottom:18px;}
+.progress-mini .bar{height:7px;background:var(--surface-alt);border-radius:99px;overflow:hidden;}
+.progress-mini .bar .fill{height:100%;background:var(--primary);border-radius:99px;transition:width .25s;}
+.progress-mini .lbl{font-size:12px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;}
+
+.submit-side-btn{width:100%;}
+
+.q-panel{padding:32px;max-width:820px;}
+.q-topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:10px;}
+.q-count{font-size:13px;color:var(--text-muted);font-weight:600;}
+.domain-chip{font-size:11.5px;font-weight:600;background:var(--surface-alt);color:var(--text-muted);padding:4px 10px;border-radius:999px;}
+.flag-btn{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 13px;color:var(--text-muted);
+}
+.flag-btn.active{background:var(--amber-bg);border-color:#F3DDA9;color:var(--amber);}
+.q-text{font-size:17px;line-height:1.6;margin:18px 0 6px;font-weight:500;}
+.q-hint{font-size:12.5px;color:var(--text-muted);margin-bottom:18px;font-style:italic;}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.option{
+  display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--border);
+  border-radius:10px;background:var(--surface);transition:border-color .12s, background .12s;
+}
+.option:hover{border-color:var(--accent);}
+.option input{margin-top:3px;accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;}
+.option label{font-size:14.5px;line-height:1.5;cursor:pointer;}
+.option.selected{border-color:var(--primary);background:#EEF3FF;}
+.opt-key{font-family:'JetBrains Mono';font-weight:700;color:var(--text-muted);margin-right:2px;}
+
+.q-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--border);}
+.q-actions .left,.q-actions .right{display:flex;gap:10px;}
+
+/* ---------- Modals ---------- */
+.overlay{position:fixed;inset:0;background:rgba(16,24,40,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.overlay.active{display:flex;}
+.modal{background:var(--surface);border-radius:14px;max-width:420px;width:100%;padding:28px;text-align:center;box-shadow:0 24px 48px rgba(16,24,40,.25);}
+.modal .icon{font-size:34px;margin-bottom:6px;}
+.modal h3{font-size:19px;margin-bottom:10px;}
+.modal p{font-size:14px;color:var(--text-muted);line-height:1.55;margin-bottom:22px;}
+.modal .actions{display:flex;gap:10px;justify-content:center;}
+.warn-modal .icon{color:var(--red);}
+.warn-count{font-family:'JetBrains Mono';font-weight:700;color:var(--red);}
+
+/* ---------- Results ---------- */
+.results-wrap{max-width:900px;margin:0 auto;padding:50px 24px;}
+.score-hero{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;
+  box-shadow:var(--shadow);margin-bottom:28px;
+}
+.score-hero .big-score{font-family:'Sora';font-size:56px;font-weight:800;}
+.score-hero .pct{color:var(--text-muted);font-size:15px;margin-top:4px;}
+.pass-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:999px;font-weight:700;font-size:14px;margin-top:16px;}
+.pass-badge.pass{background:var(--green-bg);color:var(--green);}
+.pass-badge.fail{background:var(--red-bg);color:var(--red);}
+.result-meta{display:flex;justify-content:center;gap:34px;margin-top:26px;flex-wrap:wrap;}
+.result-meta div{text-align:center;}
+.result-meta .v{font-family:'Sora';font-weight:700;font-size:20px;}
+.result-meta .k{font-size:12px;color:var(--text-muted);}
+
+.domain-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 30px;margin-bottom:28px;box-shadow:var(--shadow);}
+.domain-breakdown h3{margin-bottom:18px;font-size:17px;}
+.domain-row{margin-bottom:18px;}
+.domain-row:last-child{margin-bottom:0;}
+.domain-row .head{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
+.domain-row .head .name{font-weight:600;}
+.domain-row .head .score{color:var(--text-muted);font-family:'JetBrains Mono';}
+.domain-bar{height:9px;background:var(--surface-alt);border-radius:99px;overflow:hidden;}
+.domain-bar .fill{height:100%;border-radius:99px;}
+.fill-good{background:var(--green);}
+.fill-mid{background:var(--amber);}
+.fill-low{background:var(--red);}
+
+.results-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ---------- Review ---------- */
+.review-wrap{max-width:880px;margin:0 auto;padding:34px 24px 70px;}
+.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.review-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-chip{
+  font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-muted);
+}
+.filter-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:16px;}
+.review-card .rc-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.rc-status{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;}
+.rc-correct{background:var(--green-bg);color:var(--green);}
+.rc-incorrect{background:var(--red-bg);color:var(--red);}
+.rc-skipped{background:var(--slate-bg);color:var(--text-muted);}
+.rc-q{font-size:15.5px;font-weight:500;margin-bottom:14px;line-height:1.55;}
+.rc-opt{padding:10px 14px;border-radius:9px;border:1.5px solid var(--border);font-size:13.5px;margin-bottom:8px;display:flex;gap:10px;}
+.rc-opt.rc-your-wrong{border-color:var(--red);background:var(--red-bg);}
+.rc-opt.rc-correct-ans{border-color:var(--green);background:var(--green-bg);}
+.rc-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:5px;height:fit-content;}
+.rc-tag.your{background:var(--red);color:#fff;}
+.rc-tag.correct{background:var(--green);color:#fff;}
+.rc-explain{background:var(--surface-alt);border-radius:9px;padding:14px 16px;font-size:13.5px;color:var(--text);line-height:1.6;margin-top:10px;}
+.rc-explain b{color:var(--primary);}
+
+.hidden{display:none !important;}
+::selection{background:#C9D8FF;}
+</style>
+</head>
+<body>
+
+<!-- ============ INTRO / RULES SCREEN ============ -->
+<section id="screen-intro" class="screen active">
+  <div class="intro-card">
+    <div class="intro-head">
+      <div class="tag">Challenge Level</div>
+      <h2>Mock Test 3 — AZ-305 Practice</h2>
+    </div>
+    <div class="intro-body">
+      <div class="meta-grid">
+        <div class="meta-item"><div class="v">50</div><div class="k">Questions</div></div>
+        <div class="meta-item"><div class="v">100 min</div><div class="k">Time Limit</div></div>
+        <div class="meta-item"><div class="v">70%</div><div class="k">Passing Score</div></div>
+        <div class="meta-item"><div class="v">Single &amp; Multi</div><div class="k">Question Types</div></div>
+      </div>
+      <div class="rules-box">
+        <h4>⚠ Exam Rules — Read Before Starting</h4>
+        <ul>
+          <li>Do not switch tabs or minimize the browser — your exam will be paused and a warning issued.</li>
+          <li>3 tab-switch warnings will automatically end and submit your exam.</li>
+          <li>Multi-select questions state exactly how many answers to choose. Partial credit is not given.</li>
+          <li>You can flag any question for review and return to it before submitting.</li>
+          <li>The timer runs continuously once started and cannot be paused manually.</li>
+          <li>Once submitted, answers cannot be changed.</li>
+        </ul>
+      </div>
+      <div class="intro-actions">
+        <a class="btn btn-ghost" href="index.html" style="text-decoration:none;">← Back to test list</a>
+        <button class="btn btn-primary" id="start-exam-btn">▶ Start Exam Now</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXAM SCREEN ============ -->
+<section id="screen-exam" class="screen">
+  <div class="exam-header">
+    <div class="brand"><span class="logo-dot"></span> AZ-305 Exam Simulator — <span id="exam-tier-label"></span></div>
+    <div class="exam-stats">
+      <span>Answered <b id="stat-answered">0</b>/50</span>
+      <span>Flagged <b id="stat-flagged">0</b></span>
+      <div class="timer-pill" id="timer-pill"><span class="dot"></span><span id="timer-display">100:00</span></div>
+    </div>
+  </div>
+  <div class="exam-body">
+    <aside class="nav-panel">
+      <h4>Progress</h4>
+      <div class="progress-mini">
+        <div class="bar"><div class="fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="lbl"><span id="progress-text">0 / 50 answered</span></div>
+      </div>
+      <div class="legend">
+        <span><i class="leg-current"></i>Current</span>
+        <span><i class="leg-answered"></i>Answered</span>
+        <span><i class="leg-flagged"></i>Flagged</span>
+        <span><i class="leg-unanswered"></i>Unanswered</span>
+      </div>
+      <h4>Question Navigator</h4>
+      <div class="qnav-grid" id="qnav-grid"><!-- injected --></div>
+      <button class="btn btn-primary submit-side-btn" id="submit-exam-btn">Submit Exam →</button>
+    </aside>
+    <main class="q-panel">
+      <div class="q-topline">
+        <span class="q-count">Question <b id="q-index">1</b> of 50</span>
+        <span class="domain-chip" id="q-domain-chip"></span>
+      </div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-hint" id="q-hint"></div>
+      <div class="options" id="q-options"><!-- injected --></div>
+      <div class="q-actions">
+        <div class="left">
+          <button class="btn btn-ghost" id="prev-btn">← Prev</button>
+          <button class="btn btn-ghost" id="flag-btn">🚩 Flag for review</button>
+        </div>
+        <div class="right">
+          <button class="btn btn-primary" id="next-btn">Next →</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============ RESULTS SCREEN ============ -->
+<section id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div class="score-hero">
+      <div class="pass-badge" id="pass-badge"></div>
+      <div class="big-score" id="score-big"></div>
+      <div class="pct" id="score-pct-label"></div>
+      <div class="result-meta">
+        <div><div class="v" id="meta-correct"></div><div class="k">Correct</div></div>
+        <div><div class="v" id="meta-incorrect"></div><div class="k">Incorrect</div></div>
+        <div><div class="v" id="meta-skipped"></div><div class="k">Skipped</div></div>
+        <div><div class="v" id="meta-time"></div><div class="k">Time Used</div></div>
+      </div>
+    </div>
+    <div class="domain-breakdown">
+      <h3>📊 Domain-wise Breakdown</h3>
+      <div id="domain-breakdown-body"><!-- injected --></div>
+    </div>
+    <div class="results-actions">
+      <button class="btn btn-ghost" id="retake-btn">↺ Retake Exam</button>
+      <button class="btn btn-primary" id="review-btn">🔍 Review All Questions</button>
+      <a class="btn btn-ghost" href="index.html" style="text-decoration:none;">Choose Another Test</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVIEW SCREEN ============ -->
+<section id="screen-review" class="screen">
+  <div class="review-wrap">
+    <div class="review-head">
+      <button class="btn btn-ghost" id="review-back-btn">← Back to Results</button>
+      <div class="review-filters" id="review-filters">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="incorrect">Incorrect</button>
+        <button class="filter-chip" data-filter="correct">Correct</button>
+        <button class="filter-chip" data-filter="skipped">Skipped</button>
+        <button class="filter-chip" data-filter="flagged">Flagged</button>
+      </div>
+    </div>
+    <div id="review-list"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ============ MODALS ============ -->
+<div class="overlay" id="overlay-tabwarn">
+  <div class="modal warn-modal">
+    <div class="icon">🚨</div>
+    <h3>You Left the Exam!</h3>
+    <p>Switching tabs or minimizing the browser is not allowed during the exam. Warning <span class="warn-count" id="warn-count-current">1</span> of 3. Three warnings will automatically submit your exam.</p>
+    <div class="actions"><button class="btn btn-primary" id="return-exam-btn">Return to Exam</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-submit">
+  <div class="modal">
+    <div class="icon">📤</div>
+    <h3>Submit Exam?</h3>
+    <p id="submit-confirm-text">You have answered some questions. Once submitted, you cannot change your answers. Are you sure you want to submit?</p>
+    <div class="actions">
+      <button class="btn btn-ghost" id="cancel-submit-btn">Cancel</button>
+      <button class="btn btn-primary" id="confirm-submit-btn">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-autosubmit">
+  <div class="modal warn-modal">
+    <div class="icon">⛔</div>
+    <h3>Exam Auto-Submitted</h3>
+    <p>You reached 3 tab-switch warnings. Your exam has been automatically submitted with your current answers.</p>
+    <div class="actions"><button class="btn btn-primary" id="ack-autosubmit-btn">View Results</button></div>
+  </div>
+</div>
+
+<script>
+const MOCK_QUESTIONS = [{"id": "q001", "domain": "Design identity, governance, and monitoring solutions", "type": "multi", "correct_count": 2, "question": "You are designing an authentication solution for a hybrid environment. Requirements: (1) users must be able to sign in to Azure resources even if the connection to the on-premises network is down, and (2) password hashes must never be stored in Azure AD. Which two authentication methods together meet these requirements? (Choose two.)", "options": [{"id": "a", "text": "Password hash synchronization as the primary method"}, {"id": "b", "text": "Pass-through authentication with two or more PTA agents deployed for high availability"}, {"id": "c", "text": "Federation with AD FS as a backup, configured with Azure AD as a fallback authentication method"}, {"id": "d", "text": "Password hash synchronization configured as a backup authentication method for pass-through authentication"}], "correct": ["b", "d"], "explanation": "Pass-through authentication (with multiple agents for resilience) avoids storing password hashes in Azure AD for day-to-day sign-in, and enabling password hash sync as a backup method lets users still sign in if all PTA agents or the on-premises network become unavailable\u2014Azure AD will fail over to the hash-based method only during an outage. Using password hash sync as the primary method violates the 'never store password hashes' requirement, and AD FS alone does not solve the on-premises-outage problem without a fallback."}, {"id": "q002", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You have a management group hierarchy: Tenant Root Group > Corp (management group) > Prod (management group) > Subscription A. An Azure Policy with a deny effect restricting VM SKUs is assigned at the Corp management group. A more permissive policy allowing additional SKUs is assigned directly at Subscription A. Which policy effect applies to a VM deployment in Subscription A that uses a SKU allowed only by the Subscription A policy?", "options": [{"id": "a", "text": "The deployment succeeds because the Subscription A policy overrides the Corp policy"}, {"id": "b", "text": "The deployment is denied because Azure Policy evaluates all applicable policies from every level in the hierarchy, and a deny at a higher scope cannot be overridden by a more permissive policy at a lower scope"}, {"id": "c", "text": "Azure Policy ignores management group assignments entirely"}, {"id": "d", "text": "The deployment succeeds because only the most specific (closest) scope's policy is evaluated"}], "correct": ["b"], "explanation": "Azure Policy evaluates and enforces every applicable assignment from all scopes in the resource hierarchy simultaneously; a deny effect at any level, including a parent management group, cannot be overridden by a more permissive assignment at a lower scope such as the subscription. Only exclusions/exemptions configured on the policy assignment itself can carve out an exception, not a separate conflicting policy."}, {"id": "q003", "domain": "Design identity, governance, and monitoring solutions", "type": "multi", "correct_count": 2, "question": "You are designing least-privilege access for a DevOps team that needs to deploy ARM templates that create resource groups and role assignments, but must not be able to grant themselves Owner or Global Administrator rights. Which two actions should you include in the design? (Choose two.)", "options": [{"id": "a", "text": "Assign the built-in Owner role to the DevOps team at the subscription scope"}, {"id": "b", "text": "Create a custom RBAC role that permits Microsoft.Authorization/roleAssignments/write but excludes assignment of the Owner role, and assign it at the resource group scope"}, {"id": "c", "text": "Configure Azure AD Privileged Identity Management so that any activation to a privileged role requires approval and is time-bound"}, {"id": "d", "text": "Grant the DevOps team the Global Administrator Azure AD role"}], "correct": ["b", "c"], "explanation": "A custom role that allows creating role assignments but explicitly excludes assigning the Owner role, combined with PIM enforcing approval and time-bound activation for any genuinely privileged access, achieves least privilege while still letting the team deploy templates and manage RBAC within bounds. Assigning Owner or Global Administrator directly grants far more privilege than required and would let the team self-elevate."}, {"id": "q004", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You need to design a Conditional Access strategy that blocks legacy authentication protocols (such as POP3 and older Office clients that cannot perform modern authentication) tenant-wide, while not disrupting service accounts that use certificate-based authentication for automated tasks. What should you recommend?", "options": [{"id": "a", "text": "A Conditional Access policy targeting the 'Other clients' client app condition, blocking access for all users except an excluded group containing the service accounts"}, {"id": "b", "text": "Disable all legacy protocols at the Exchange Online organization level with no exceptions"}, {"id": "c", "text": "Rely on security defaults alone, which cannot be scoped"}, {"id": "d", "text": "Require MFA for legacy authentication instead of blocking it"}], "correct": ["a"], "explanation": "A Conditional Access policy scoped to the legacy/'other clients' authentication client apps condition can block legacy auth broadly while excluding a defined group (the service accounts) from the policy, preserving their automated access. MFA cannot be satisfied by legacy authentication protocols at all, since they do not support modern interactive authentication challenges."}, {"id": "q005", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "Your organization uses Azure AD Identity Governance. You need to design a process where, when an employee's manager changes, their access packages tied to their old department are automatically reviewed and potentially revoked, without a helpdesk ticket. What should you recommend?", "options": [{"id": "a", "text": "Manually track manager changes in a spreadsheet"}, {"id": "b", "text": "Use Azure AD entitlement management access packages with expiration and periodic access reviews configured, combined with a Lifecycle Workflow or automated process triggered on attribute change"}, {"id": "c", "text": "Disable the employee's account whenever a manager change is detected"}, {"id": "d", "text": "Rely solely on annual manual audits"}], "correct": ["b"], "explanation": "Entitlement management access packages with expiration and recurring access reviews, combined with a Lifecycle Workflow that reacts to attribute changes like manager updates, can automatically trigger recertification or removal of access tied to the prior role without manual ticketing. Disabling the account entirely is overly disruptive and not what was requested."}, {"id": "q006", "domain": "Design identity, governance, and monitoring solutions", "type": "multi", "correct_count": 2, "question": "You are designing a secrets-management solution for an application that runs across two Azure regions for disaster recovery. The design must ensure secrets remain available if one region fails, and access must be auditable. Which two design elements should you include? (Choose two.)", "options": [{"id": "a", "text": "Deploy Key Vault with automatic geo-replication that Azure manages internally, ensuring secrets are read from a secondary region if the primary region is unavailable"}, {"id": "b", "text": "Enable diagnostic logging on the Key Vault, sent to a Log Analytics workspace, to audit all access requests"}, {"id": "c", "text": "Store a duplicate of all secrets unencrypted in a GitHub repository as a backup"}, {"id": "d", "text": "Disable logging to reduce cost, since Key Vault access is inherently secure"}], "correct": ["a", "b"], "explanation": "Azure Key Vault automatically replicates secrets within its region pair, so it remains available to the application in the paired region if the primary region has an outage, and enabling diagnostic logs to Log Analytics provides an auditable record of every access request. Storing unencrypted secrets in source control is a severe security anti-pattern, and disabling logging removes the auditability the requirement asks for."}, {"id": "q007", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You need to design a monitoring solution that correlates Azure AD sign-in risk events with network-level anomalies detected by Azure Firewall, and automatically opens a ticket in an external ITSM tool when both signals indicate a likely compromised account. What should you recommend?", "options": [{"id": "a", "text": "Microsoft Sentinel with a multi-source analytics rule and a Logic Apps playbook that calls the ITSM tool's API"}, {"id": "b", "text": "Azure Monitor VM insights only"}, {"id": "c", "text": "Azure AD Identity Protection alone, with manual ticket creation"}, {"id": "d", "text": "Azure Advisor"}], "correct": ["a"], "explanation": "Sentinel can ingest both Azure AD sign-in/risk data and Azure Firewall logs into a common workspace, correlate them via an analytics rule, and trigger an automated Logic Apps playbook to call an external ITSM API when the rule fires, fully automating detection-to-ticket. Identity Protection alone does not correlate with network firewall data or integrate with an external ITSM system automatically."}, {"id": "q008", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "A company wants to enforce that only compliant, Intune-managed devices can access a sensitive line-of-business application published through Azure AD Application Proxy, even for users connecting from outside the corporate network. What should you recommend?", "options": [{"id": "a", "text": "A Conditional Access policy requiring the device to be marked compliant, applied to the Application Proxy-published application"}, {"id": "b", "text": "Rely on Application Proxy's default network-level filtering only"}, {"id": "c", "text": "Require only MFA with no device compliance check"}, {"id": "d", "text": "Block all access from outside the corporate network entirely"}], "correct": ["a"], "explanation": "Conditional Access can target the specific application published via Application Proxy and require the signing-in device to be marked compliant (enforced through Intune), regardless of network location, directly meeting the requirement. Blocking all external access entirely would prevent legitimate remote access rather than conditionally allowing compliant devices."}, {"id": "q009", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a solution for tracking configuration drift on Azure resources against a defined baseline (e.g., ensuring diagnostic settings remain enabled on all storage accounts), with automatic remediation of any resource found out of compliance. What should you recommend?", "options": [{"id": "a", "text": "Azure Policy with an auditIfNotExists or deployIfNotExists effect and a remediation task"}, {"id": "b", "text": "Azure Advisor recommendations reviewed manually"}, {"id": "c", "text": "Azure Monitor metric alerts only"}, {"id": "d", "text": "A manual quarterly configuration review"}], "correct": ["a"], "explanation": "Azure Policy's deployIfNotExists effect can detect resources missing a required configuration (like diagnostic settings) and automatically deploy the missing configuration through an associated remediation task, closing the loop without manual intervention. Advisor only recommends; it does not enforce or remediate automatically."}, {"id": "q010", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You need to design a solution where an Azure Function in Subscription A must call an Azure SQL Database in Subscription B (different Azure AD tenant is not involved, same tenant, different subscription), using Azure AD authentication with no secrets stored anywhere. What should you recommend?", "options": [{"id": "a", "text": "Use a system-assigned managed identity on the function app, and create a contained database user in Azure SQL Database mapped to that managed identity with appropriate permissions"}, {"id": "b", "text": "Use SQL authentication with a hardcoded username and password"}, {"id": "c", "text": "Store the SQL connection string, including password, in the function app's application settings"}, {"id": "d", "text": "Create a new Azure AD tenant to bridge the subscriptions"}], "correct": ["a"], "explanation": "A system-assigned managed identity can be granted access across subscriptions within the same Azure AD tenant, and creating a corresponding contained database user mapped to that identity in Azure SQL Database enables secretless Azure AD authentication regardless of which subscription the database lives in. A new tenant is unnecessary since both subscriptions already share the same tenant."}, {"id": "q011", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You are designing a solution to ensure that Azure resources created by any user in the tenant automatically inherit a set of five mandatory tags (CostCenter, Owner, Environment, Project, DataClassification) with values inherited from the resource group if not explicitly specified at creation. What should you recommend?", "options": [{"id": "a", "text": "An Azure Policy definition using the 'modify' effect to inherit tag values from the parent resource group, assigned at the management group level"}, {"id": "b", "text": "Ask users to remember to tag resources manually"}, {"id": "c", "text": "An Azure Policy with only an 'audit' effect and no remediation"}, {"id": "d", "text": "A yearly manual tagging exercise"}], "correct": ["a"], "explanation": "The 'modify' effect in Azure Policy can automatically add or update tags on new or existing resources, including inheriting values from the parent resource group, and assigning it at the management group level ensures it applies tenant-wide without relying on manual user action. An 'audit' effect alone only flags non-compliance without actually adding the tags."}, {"id": "q012", "domain": "Design identity, governance, and monitoring solutions", "type": "multi", "correct_count": 2, "question": "You are designing a solution to reduce standing access to production subscriptions. Currently, 30 engineers have permanent Contributor access. Requirements: engineers should only have elevated access when actively working on an incident, and all elevation activity must be logged for audit. Which two features should you include? (Choose two.)", "options": [{"id": "a", "text": "Remove the engineers from the Contributor role and make the role eligible (not active) via Azure AD PIM"}, {"id": "b", "text": "Leave all 30 engineers as permanent Contributors but add a policy requiring a comment in the Activity Log"}, {"id": "c", "text": "Enable PIM's audit history feature to review all activation, approval, and deactivation events"}, {"id": "d", "text": "Grant all engineers Owner role instead of Contributor for simplicity"}], "correct": ["a", "c"], "explanation": "Converting the Contributor assignment to an eligible (rather than active) PIM role removes standing access, requiring engineers to activate it only when needed, and PIM's built-in audit history logs every activation, approval, and deactivation event for compliance review. Leaving permanent access in place or upgrading to Owner both increase standing privilege, which is the opposite of the stated goal."}, {"id": "q013", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "You need to design a monitoring solution for a set of Azure Kubernetes Service clusters, capturing both control-plane logs (API server, scheduler) and container stdout/stderr logs, queryable together with Kusto Query Language. What should you recommend?", "options": [{"id": "a", "text": "Enable AKS diagnostic settings to send control-plane logs to a Log Analytics workspace, and enable Container Insights for the same workspace to capture container logs"}, {"id": "b", "text": "Rely on kubectl logs commands run manually by administrators"}, {"id": "c", "text": "Enable only Container Insights, with no control-plane diagnostic settings"}, {"id": "d", "text": "Store logs only on local node disks"}], "correct": ["a"], "explanation": "Enabling AKS diagnostic settings captures control-plane component logs, and Container Insights captures container/pod-level stdout and stderr logs; sending both to the same Log Analytics workspace allows unified KQL querying across control-plane and workload logs. Container Insights alone would miss control-plane events like API server activity."}, {"id": "q014", "domain": "Design identity, governance, and monitoring solutions", "type": "single", "correct_count": 1, "question": "Your company must demonstrate, for an external audit, exactly which Azure AD administrators approved specific role activations over the last 12 months, including the justification text provided. What should you recommend?", "options": [{"id": "a", "text": "Review Azure AD PIM audit history and export the relevant activation/approval records, ensuring log retention covers the required 12-month window"}, {"id": "b", "text": "Ask administrators to recall approvals from memory"}, {"id": "c", "text": "Rely on Azure Advisor security recommendations"}, {"id": "d", "text": "Use Azure Cost Management reports"}], "correct": ["a"], "explanation": "PIM's audit history retains detailed records of role activations, including approvals and any justification text supplied, which can be exported for audit purposes as long as retention/export settings cover the required historical window. Advisor and Cost Management do not track identity governance events like role activation approvals."}, {"id": "q015", "domain": "Design data storage solutions", "type": "multi", "correct_count": 2, "question": "You are designing a globally distributed order-processing database on Cosmos DB. Requirements: read latency under 10ms for 99th percentile globally, and the application can tolerate reading data that is at most 5 seconds stale but must never read out-of-order writes relative to a single client's own operations. Which two configuration choices meet these requirements? (Choose two.)", "options": [{"id": "a", "text": "Configure Bounded Staleness consistency with a staleness window suitable for the 5-second tolerance"}, {"id": "b", "text": "Configure Strong consistency across all regions"}, {"id": "c", "text": "Enable multi-region reads with the application connecting to the nearest regional endpoint"}, {"id": "d", "text": "Configure Eventual consistency with no staleness bound"}], "correct": ["a", "c"], "explanation": "Bounded Staleness provides a configurable staleness window (time or operation count) that bounds how out-of-date reads can be while still guaranteeing consistent prefix ordering, fitting the 5-second tolerance and no-out-of-order requirement; enabling multi-region reads lets clients read from their nearest region to achieve low latency. Strong consistency would add cross-region write latency that could violate the sub-10ms read target, and Eventual consistency provides no staleness bound and could allow out-of-order reads."}, {"id": "q016", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You are designing a solution for a reporting workload that must run complex analytical queries against 5 years of historical sales data (40 TB), while the OLTP system continues to handle live transactions with no query performance impact from reporting. What should you recommend?", "options": [{"id": "a", "text": "Run reporting queries directly against the OLTP Azure SQL Database production replica"}, {"id": "b", "text": "Use Azure Synapse Analytics (or a dedicated read replica/analytical store) fed by ETL/ELT from the OLTP system, isolating reporting workload from production transactions"}, {"id": "c", "text": "Add more DTUs to the OLTP database to absorb reporting load"}, {"id": "d", "text": "Run reporting queries during business hours directly on the production database"}], "correct": ["b"], "explanation": "Offloading historical data into a purpose-built analytical store such as Synapse Analytics, populated via ETL/ELT, isolates the heavy analytical workload from the OLTP system entirely, ensuring no contention with live transaction processing. Running reporting queries directly against production, even with more DTUs, still risks resource contention and locking against live transactions."}, {"id": "q017", "domain": "Design data storage solutions", "type": "multi", "correct_count": 2, "question": "You are designing a backup and recovery strategy for a mission-critical Azure SQL Database that must meet these requirements: recoverable to any point within the last 28 days, and a specific end-of-quarter backup retained for 7 years for regulatory purposes. Which two features should you configure? (Choose two.)", "options": [{"id": "a", "text": "Set the point-in-time restore (PITR) backup retention to 28 days"}, {"id": "b", "text": "Configure a long-term retention (LTR) policy that retains the quarterly (or yearly) backup for 7 years"}, {"id": "c", "text": "Rely on the default 7-day PITR retention with no changes"}, {"id": "d", "text": "Enable geo-replication only, with no backup retention configuration"}], "correct": ["a", "b"], "explanation": "Extending PITR retention to 28 days covers the recent recovery window requirement, and configuring an LTR policy that captures and retains a quarterly (or yearly) backup satisfies the 7-year regulatory retention need; these are two distinct, complementary settings. The default 7-day PITR window would not meet the 28-day requirement, and geo-replication alone provides no long-term backup retention."}, {"id": "q018", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "A company ingests JSON telemetry into a data lake at a rate that will exceed 500 MB/s during peak hours. Downstream, a Spark-based analytics engine needs to process this data with minimal latency between ingestion and availability for processing, and the data must be organized into a queryable hierarchical folder structure. What should you recommend?", "options": [{"id": "a", "text": "Store the data in Azure Data Lake Storage Gen2 with hierarchical namespace enabled, organized into a partitioned folder structure (e.g., by date)"}, {"id": "b", "text": "Store the data in Azure Table Storage with a single partition key for all records"}, {"id": "c", "text": "Store the data in a single flat Blob container with no folder structure"}, {"id": "d", "text": "Store the data in Azure Queue Storage"}], "correct": ["a"], "explanation": "ADLS Gen2 (hierarchical namespace enabled) is optimized for high-throughput big-data workloads, supports efficient hierarchical folder organization (such as date-based partitioning) that Spark engines can leverage for partition pruning, and scales to the required ingestion throughput. Table Storage and Queue Storage are not designed for large-scale file-based analytics ingestion, and a flat container without partitioning hurts query and processing efficiency."}, {"id": "q019", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a solution to reduce storage costs for a Cosmos DB container holding 2 years of transaction history, where documents older than 90 days are rarely queried and could tolerate a slightly higher per-request cost if it lowers overall storage/throughput spend. What should you recommend?", "options": [{"id": "a", "text": "Enable Cosmos DB analytical store with Synapse Link for the container, and archive/query the older data through the analytical store instead of the transactional store"}, {"id": "b", "text": "Provision a fixed high level of RU/s permanently regardless of load"}, {"id": "c", "text": "Delete all data older than 90 days immediately"}, {"id": "d", "text": "Move the entire container to Table Storage with no redesign"}], "correct": ["a"], "explanation": "Enabling the analytical store (via Synapse Link) creates a separate, cost-efficient, column-oriented copy of the data optimized for large-scale analytical queries at a much lower cost than querying via provisioned RU/s on the transactional store, letting older data be queried cheaply without deleting it. Deleting the data outright would violate the implied need to retain 2 years of history."}, {"id": "q020", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You are designing a data integration solution that must transform and cleanse data using a visual, code-free interface, running on a Spark-based engine, orchestrated as part of a larger Azure Data Factory pipeline, without you having to write or manage Spark code directly. What should you recommend?", "options": [{"id": "a", "text": "Azure Data Factory Mapping Data Flows"}, {"id": "b", "text": "A custom Databricks notebook requiring manual Spark code for every step"}, {"id": "c", "text": "Azure Functions with custom .NET transformation code"}, {"id": "d", "text": "AzCopy with command-line scripting"}], "correct": ["a"], "explanation": "Mapping Data Flows in Data Factory provide a visual, code-free way to design data transformations that execute on a scaled-out Spark cluster managed by the service, and they integrate natively as an activity within a Data Factory pipeline. A Databricks notebook would require writing and maintaining Spark code directly, which conflicts with the code-free requirement."}, {"id": "q021", "domain": "Design data storage solutions", "type": "multi", "correct_count": 2, "question": "You are designing storage for unstructured documents (PDFs, images) that must remain immutable for regulatory purposes for exactly 3 years after upload, and no user\u2014including an account owner\u2014should be able to delete or modify them before that period expires. Which two features should you configure? (Choose two.)", "options": [{"id": "a", "text": "Configure a time-based blob immutability policy in Locked state for 3 years on the container"}, {"id": "b", "text": "Enable versioning only, with no immutability policy"}, {"id": "c", "text": "Grant only Reader role to all users on the storage account"}, {"id": "d", "text": "Apply the immutability policy at the container level so it covers all blobs uploaded to that container"}], "correct": ["a", "d"], "explanation": "A time-based immutability policy in the Locked state legally enforces that blobs cannot be modified or deleted for the specified retention period, and this can be applied at the container level to automatically cover all blobs uploaded there, meeting the regulatory requirement even against account owners. Reader-only RBAC could still be bypassed by someone with higher privileges elsewhere and does not provide the same enforced, auditable immutability guarantee."}, {"id": "q022", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a database platform for a new microservice that requires ACID transactions across multiple related rows, complex joins across normalized tables, and predictable relational query performance, with an initial dataset under 250 GB. What should you recommend?", "options": [{"id": "a", "text": "Azure SQL Database"}, {"id": "b", "text": "Azure Cosmos DB with the NoSQL API"}, {"id": "c", "text": "Azure Table Storage"}, {"id": "d", "text": "Azure Blob Storage"}], "correct": ["a"], "explanation": "Azure SQL Database is a relational engine that natively supports ACID transactions across multiple rows/tables and complex multi-table joins, which is exactly what this workload needs at a moderate scale. Cosmos DB's NoSQL API is document-oriented and, while it supports transactions within a single logical partition, is not optimized for complex multi-table relational joins."}, {"id": "q023", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You need to design a solution that continuously synchronizes changes made in an on-premises SQL Server database (both inserts and updates) to a corresponding table in Azure SQL Database in near real time, without a full reload of the entire table each time. What should you recommend?", "options": [{"id": "a", "text": "Azure Data Factory pipeline using change data capture (CDC) with incremental copy based on watermark columns or native CDC support"}, {"id": "b", "text": "A nightly full table copy that truncates and reloads the destination table"}, {"id": "c", "text": "A one-time manual BACPAC export/import"}, {"id": "d", "text": "Azure Site Recovery"}], "correct": ["a"], "explanation": "Data Factory pipelines can use change data capture or watermark-based incremental copy patterns to synchronize only new and changed rows continuously, avoiding a full reload and achieving near-real-time propagation. A nightly full reload is neither near-real-time nor incremental, and a one-time BACPAC export does not provide ongoing synchronization."}, {"id": "q024", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You need to design a solution for storing and querying time-series sensor data at a rate of 100,000 writes per second, with automatic data aging (older data downsampled and eventually deleted) and native time-based query functions. What should you recommend?", "options": [{"id": "a", "text": "Azure Data Explorer (Kusto) with a retention policy for automatic aging"}, {"id": "b", "text": "Azure Table Storage with manual cleanup scripts"}, {"id": "c", "text": "Azure SQL Database with a single un-partitioned table"}, {"id": "d", "text": "Azure Files"}], "correct": ["a"], "explanation": "Azure Data Explorer is purpose-built for high-ingestion-rate time-series and log-style data, offering native time-based query operators and configurable retention policies that automatically age out or downsample old data. A single un-partitioned SQL table would struggle to sustain 100,000 writes/second, and Table Storage/Files lack native time-series query and retention capabilities."}, {"id": "q025", "domain": "Design data storage solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a data protection solution for an Azure SQL Database that ensures data remains encrypted at rest using keys that your organization fully controls and can revoke at any time, cutting off Microsoft's ability to access the data. What should you recommend?", "options": [{"id": "a", "text": "Transparent Data Encryption (TDE) with customer-managed keys (CMK) stored in Azure Key Vault"}, {"id": "b", "text": "Transparent Data Encryption (TDE) with service-managed keys only"}, {"id": "c", "text": "Always Encrypted with no key management strategy defined"}, {"id": "d", "text": "Disable encryption and rely on network isolation alone"}], "correct": ["a"], "explanation": "TDE with customer-managed keys lets the organization store and control the encryption key in its own Key Vault, and revoking access to that key effectively cuts off the ability to decrypt the data, including for the service itself. Service-managed keys are controlled entirely by Microsoft, so the customer cannot independently revoke key access."}, {"id": "q026", "domain": "Design business continuity solutions", "type": "multi", "correct_count": 2, "question": "You are designing disaster recovery for a three-tier application: web tier on VM Scale Sets, app tier on AKS, and data tier on Azure SQL Managed Instance. The design must achieve an RTO of 1 hour and RPO of 5 minutes for a full regional outage. Which two elements should you include? (Choose two.)", "options": [{"id": "a", "text": "Configure an auto-failover group for the SQL Managed Instance to a secondary region"}, {"id": "b", "text": "Replicate the VM Scale Set and AKS node images/configuration to a secondary region using Azure Site Recovery or equivalent infrastructure-as-code redeployment, with a tested recovery plan/runbook"}, {"id": "c", "text": "Rely on Azure Backup of the SQL Managed Instance as the only recovery mechanism"}, {"id": "d", "text": "Deploy all tiers only within a single Availability Zone"}], "correct": ["a", "b"], "explanation": "An auto-failover group provides the low-RPO, automatic regional failover needed for the data tier, and replicating or redeploying the compute tiers to a secondary region via Site Recovery or IaC, combined with a tested recovery plan, addresses the compute tiers within the 1-hour RTO. Relying on backup alone for the database would produce a much larger RPO than 5 minutes, since backups are periodic rather than continuous."}, {"id": "q027", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You need to design a solution so that a critical application's RTO of 4 hours and RPO of 15 minutes can be met for VMs, while minimizing ongoing cost by not running a full duplicate environment continuously in the secondary region. What should you recommend?", "options": [{"id": "a", "text": "Azure Site Recovery with replication enabled to the secondary region, using low-cost compute (or no pre-provisioned VMs) in the secondary region until a failover is triggered"}, {"id": "b", "text": "Run a fully duplicated, always-on environment in the secondary region at all times"}, {"id": "c", "text": "Take VM backups only once per day"}, {"id": "d", "text": "Do not configure any DR solution and rely on rebuilding VMs manually after an outage"}], "correct": ["a"], "explanation": "Site Recovery replicates changes continuously to meet a tight RPO, but VMs in the target region are only provisioned (and billed for compute) at the point of an actual failover or test failover, avoiding the cost of a fully duplicated always-on environment while still meeting the RTO/RPO targets. Running a fully duplicated environment continuously would meet the targets but at unnecessary ongoing cost, which the requirement explicitly asks to minimize."}, {"id": "q028", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "Your organization is designing recovery for an Azure SQL Managed Instance where a recent auto-failover group failover test revealed that DNS-based redirection took over 5 minutes to propagate to client applications, delaying recovery. What should you recommend to reduce this delay in future failovers?", "options": [{"id": "a", "text": "Ensure client applications use the auto-failover group's listener endpoint (rather than the individual instance endpoint) so DNS updates are handled by the failover group itself and configure appropriate DNS TTL settings"}, {"id": "b", "text": "Hard-code the primary instance's IP address in the application"}, {"id": "c", "text": "Disable the auto-failover group and perform manual failover only"}, {"id": "d", "text": "Increase the DNS TTL to 24 hours to reduce query volume"}], "correct": ["a"], "explanation": "Applications should connect through the failover group's listener endpoint, which is designed to have its DNS entry updated automatically on failover; ensuring a reasonably short TTL on that endpoint (as configured by the failover group) minimizes client-side propagation delay. Hard-coding an IP address bypasses the failover mechanism entirely and would break connectivity after failover, and increasing TTL would make propagation delay worse, not better."}, {"id": "q029", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You need to design a backup solution for a fleet of 500 Azure VMs across 10 subscriptions, using a single centralized policy for daily backups with 30-day retention, minimizing the number of Recovery Services vaults that must be individually managed. What should you recommend?", "options": [{"id": "a", "text": "Create one Recovery Services vault per VM"}, {"id": "b", "text": "Use Azure Backup with a small number of centrally managed Recovery Services vaults (e.g., one per region) and apply a single backup policy across all VMs, using Azure Policy to enforce that new VMs are automatically enrolled"}, {"id": "c", "text": "Configure manual snapshot scripts for each VM individually"}, {"id": "d", "text": "Use a separate third-party backup tool unrelated to Azure Backup"}], "correct": ["b"], "explanation": "Consolidating protection into a small number of centrally managed Recovery Services vaults (typically one per region for latency/compliance reasons) with a single shared backup policy, combined with an Azure Policy that auto-enrolls new VMs into backup, minimizes both the number of vaults to manage and the ongoing administrative burden. Creating one vault per VM would be the opposite of minimizing management overhead."}, {"id": "q030", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You are designing a business continuity solution for unstructured data stored in a storage account that must survive the complete loss of an Azure region with no data loss for successfully acknowledged writes, and reads must remain available (though possibly read-only) from a secondary region during the outage. What should you recommend?", "options": [{"id": "a", "text": "Locally-redundant storage (LRS)"}, {"id": "b", "text": "Read-access geo-redundant storage (RA-GRS) or geo-zone-redundant storage (RA-GZRS)"}, {"id": "c", "text": "Zone-redundant storage (ZRS) only"}, {"id": "d", "text": "No redundancy configuration, relying on manual copies"}], "correct": ["b"], "explanation": "RA-GRS (or RA-GZRS for added zone redundancy in the primary region) asynchronously replicates data to a paired secondary region and allows read access to that secondary region's data even during a primary region outage, meeting both the durability and read-availability requirements. LRS and ZRS only protect within a single region and do not survive a full regional loss."}, {"id": "q031", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You need to design a solution to test your organization's disaster recovery plan for Azure VMs replicated with Azure Site Recovery on a quarterly basis, without impacting the ongoing replication or the production environment. What should you recommend?", "options": [{"id": "a", "text": "Perform a test failover into an isolated network in the target region"}, {"id": "b", "text": "Perform a full (planned) failover to the target region every quarter"}, {"id": "c", "text": "Stop replication before every test, then re-enable it afterward"}, {"id": "d", "text": "Simulate the test by only reviewing documentation, without actually failing over"}], "correct": ["a"], "explanation": "Site Recovery's test failover capability creates an isolated copy of the replicated VMs in a separate network in the target region, allowing full validation of the recovery process without affecting ongoing replication or impacting the live production environment. A full planned failover would actually redirect production traffic and disrupt the live environment, which is not appropriate for a routine quarterly test."}, {"id": "q032", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a solution for a company that must retain the ability to recover Azure VM backups even if the entire subscription containing the Recovery Services vault is accidentally deleted. What should you recommend?", "options": [{"id": "a", "text": "Enable Cross Subscription Restore is not sufficient by itself; instead, use a vault in a different, dedicated management subscription and ensure appropriate resource locks and access controls are applied to that subscription"}, {"id": "b", "text": "Store the Recovery Services vault in the same subscription as the production VMs, with no additional protection"}, {"id": "c", "text": "Rely on default subscription-level protections with no extra configuration"}, {"id": "d", "text": "Disable soft-delete on the vault to save cost"}], "correct": ["a"], "explanation": "Placing the backup vault in a separate, tightly controlled management subscription (with strong access controls and resource locks) reduces the risk that an accident affecting the production subscription also destroys the backup data, since the vault and its recovery points live outside that blast radius. Keeping the vault in the same subscription as production ties its fate to that subscription, so deleting the subscription could jeopardize both."}, {"id": "q033", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "Your company needs to design high availability for an Azure Cache for Redis instance backing a session store, tolerating the failure of the primary node with automatic failover and minimal data loss. What should you recommend?", "options": [{"id": "a", "text": "Standard or Premium tier with replication enabled, providing a primary/replica pair with automatic failover"}, {"id": "b", "text": "Basic tier with a single node and no replica"}, {"id": "c", "text": "Rely on client-side retry logic alone with a single-node cache"}, {"id": "d", "text": "Disable persistence entirely to reduce cost"}], "correct": ["a"], "explanation": "The Standard and Premium tiers of Azure Cache for Redis provision a replicated primary/replica pair with automatic failover if the primary node becomes unavailable, minimizing data loss and downtime. The Basic tier is explicitly a single node with no SLA for availability and no failover capability."}, {"id": "q034", "domain": "Design business continuity solutions", "type": "single", "correct_count": 1, "question": "You need to design a recovery solution for an Azure App Service Premium plan application so that, if the entire region fails, traffic automatically shifts to a warm standby deployment in a second region within minutes, with database writes replicated continuously. What should you recommend?", "options": [{"id": "a", "text": "Deploy the App Service in a second region with continuous deployment parity, configure Azure Front Door (or Traffic Manager) with health probes for automatic failover, and use an Azure SQL auto-failover group for the database tier"}, {"id": "b", "text": "Deploy the App Service only in a single region with a backup taken nightly"}, {"id": "c", "text": "Deploy a second App Service manually only after an outage occurs"}, {"id": "d", "text": "Use DNS records with a 24-hour TTL pointed only at the primary region"}], "correct": ["a"], "explanation": "A warm-standby architecture requires a pre-deployed secondary App Service kept in sync, a global traffic-routing layer like Front Door with health probes to detect failure and redirect automatically, and continuous database replication via an auto-failover group, together achieving minutes-level failover with low RPO. Deploying the standby only after an outage occurs defeats the purpose of a warm standby and would take far longer than minutes."}, {"id": "q035", "domain": "Design infrastructure solutions", "type": "multi", "correct_count": 2, "question": "You are designing compute for a workload with these characteristics: bursty CPU demand, need for custom container images, and requirement to scale from 0 to 50 instances within 30 seconds during traffic spikes, with the team wanting to avoid managing Kubernetes directly. Which two services should you consider as viable candidates? (Choose two.)", "options": [{"id": "a", "text": "Azure Container Apps"}, {"id": "b", "text": "Azure Kubernetes Service, self-managed by the team"}, {"id": "c", "text": "Azure Container Instances orchestrated via automation for rapid scale-out"}, {"id": "d", "text": "A single, fixed-size Azure VM"}], "correct": ["a", "c"], "explanation": "Azure Container Apps is built on KEDA and can scale rapidly from zero without the team managing Kubernetes directly, and Container Instances can be orchestrated for fast container start-up in scale-out scenarios, both avoiding direct Kubernetes management. Self-managed AKS explicitly requires managing Kubernetes, which the team wants to avoid, and a single fixed-size VM cannot scale to 50 instances."}, {"id": "q036", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing a compute solution for an application that must run identically on-premises (for data residency reasons for some customers) and in Azure (for others), using the same container images and Kubernetes manifests, with centralized management from Azure. What should you recommend?", "options": [{"id": "a", "text": "Azure Arc-enabled Kubernetes, connecting the on-premises Kubernetes clusters to Azure for centralized management, alongside AKS clusters in Azure"}, {"id": "b", "text": "Deploy only to AKS and require all customers to accept cloud hosting"}, {"id": "c", "text": "Deploy only to on-premises Kubernetes with no Azure integration"}, {"id": "d", "text": "Use Azure Container Instances exclusively for both scenarios"}], "correct": ["a"], "explanation": "Azure Arc-enabled Kubernetes extends Azure management, policy, and monitoring to Kubernetes clusters running anywhere, including on-premises, while AKS handles the cloud-hosted portion, letting both run the same container images/manifests under centralized Azure management. Deploying only to AKS would violate the data residency requirement for some customers."}, {"id": "q037", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a compute solution for a scientific workload that requires GPU acceleration for machine learning training, running for a few hours several times per week, where cost efficiency for intermittent usage is a priority. What should you recommend?", "options": [{"id": "a", "text": "GPU-enabled Azure VMs deployed on demand and deallocated (not just stopped) when not in use, or Azure Machine Learning compute clusters with autoscale to zero"}, {"id": "b", "text": "A permanently running GPU VM, even when idle"}, {"id": "c", "text": "A CPU-only VM size for the training workload"}, {"id": "d", "text": "Azure Static Web Apps"}], "correct": ["a"], "explanation": "GPU VMs that are deallocated (not merely stopped) avoid compute charges when idle, and Azure Machine Learning compute clusters can autoscale down to zero nodes between training runs, both matching the intermittent-usage, cost-sensitive requirement. Leaving a GPU VM running continuously would incur unnecessary cost during idle periods, and a CPU-only size would not meet the GPU acceleration requirement."}, {"id": "q038", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing an application architecture for an order system where, after an order event is published, exactly one of several possible downstream handlers should process it based on message content (e.g., 'high-value orders' vs 'standard orders'), without the publisher needing to know the routing logic. What should you recommend?", "options": [{"id": "a", "text": "Azure Service Bus topics with subscriptions that use SQL filters to route messages to the appropriate subscriber based on message properties"}, {"id": "b", "text": "Azure Storage Queues with all subscribers polling the same queue"}, {"id": "c", "text": "Broadcast the event via Event Grid to every possible subscriber, each of which processes every message and discards irrelevant ones"}, {"id": "d", "text": "Direct point-to-point calls hardcoded in the publisher for each order type"}], "correct": ["a"], "explanation": "Service Bus topics with subscription-level SQL filters let each subscription selectively receive only the messages matching specific criteria (e.g., order value), so exactly the right handler processes each message based on content, without the publisher needing routing logic. Storage Queues do not support topic/subscription filtering, and hardcoding routing logic in the publisher tightly couples it to downstream handlers."}, {"id": "q039", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a solution for a global chat application requiring extremely high-throughput, low-latency, ordered event streaming from millions of concurrent producers, with the ability to reprocess the last 24 hours of events if a downstream consumer needs to recover from an error. What should you recommend?", "options": [{"id": "a", "text": "Azure Event Hubs with a 24-hour (or longer) retention period configured"}, {"id": "b", "text": "Azure Service Bus queues with a 24-hour message TTL"}, {"id": "c", "text": "Azure Storage Queues with 7-day message TTL"}, {"id": "d", "text": "Synchronous REST calls between producers and consumers with no buffering"}], "correct": ["a"], "explanation": "Event Hubs is designed for very high-throughput event streaming from massive numbers of producers and supports configurable retention that allows consumers to replay a window of recent events (including 24 hours) after recovering from an error, using offset-based reads. Service Bus and Storage Queues are message-queue systems, not designed for this scale of streaming ingestion or offset-based replay."}, {"id": "q040", "domain": "Design infrastructure solutions", "type": "multi", "correct_count": 2, "question": "You are designing an API integration solution where an external partner will call your APIs. Requirements: enforce a rate limit of 100 calls/minute per partner, and completely hide the internal microservice URLs and versioning scheme from the partner. Which two features of Azure API Management should you configure? (Choose two.)", "options": [{"id": "a", "text": "A rate-limit-by-key policy scoped to the partner's subscription key"}, {"id": "b", "text": "API Management's backend abstraction, where the public-facing API operations map to internal backend URLs that are never exposed to consumers"}, {"id": "c", "text": "Expose the internal microservice URLs directly to the partner for transparency"}, {"id": "d", "text": "Disable subscription keys entirely so any caller can access the API"}], "correct": ["a", "b"], "explanation": "A rate-limit-by-key policy scoped to the partner's subscription key enforces the required 100 calls/minute limit per partner, and API Management's backend abstraction means the public API surface is entirely decoupled from and hides the internal microservice URLs/versioning. Exposing internal URLs directly or disabling subscription keys would violate both the abstraction and rate-limiting requirements."}, {"id": "q041", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a caching architecture for a globally distributed application with users in North America, Europe, and Asia, where each region's users should experience low-latency cache access, and cached data should be independently manageable per region without a single point of failure. What should you recommend?", "options": [{"id": "a", "text": "A single global Azure Cache for Redis instance in one region serving all users"}, {"id": "b", "text": "A regional Azure Cache for Redis instance deployed in each geography, close to that region's application tier"}, {"id": "c", "text": "No caching layer, relying on database queries for every request"}, {"id": "d", "text": "Client-side browser caching only, with no server-side cache"}], "correct": ["b"], "explanation": "Deploying a Redis cache instance per region, co-located with that region's application tier, gives each region low-latency cache access and removes a single global point of failure, since each region's cache operates independently. A single global cache instance in one region would introduce high latency for distant regions and a single point of failure."}, {"id": "q042", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to design an application configuration solution where secrets (database passwords) and non-sensitive settings (feature flags, timeouts) are managed together but sensitive values are never exposed in plaintext within the configuration store itself. What should you recommend?", "options": [{"id": "a", "text": "Store non-sensitive settings directly in Azure App Configuration, and store secret values in Key Vault, referenced from App Configuration using Key Vault references"}, {"id": "b", "text": "Store all values, including secrets, directly and unencrypted in Azure App Configuration"}, {"id": "c", "text": "Store all values, including non-sensitive settings, only in Key Vault"}, {"id": "d", "text": "Store secrets in source-controlled configuration files"}], "correct": ["a"], "explanation": "Azure App Configuration natively supports Key Vault references, so non-sensitive settings live directly in App Configuration while sensitive values are stored (and remain encrypted/access-controlled) in Key Vault and only referenced by App Configuration, keeping secrets out of plaintext configuration. Storing everything, including secrets, unencrypted in App Configuration directly violates the requirement."}, {"id": "q043", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing a CI/CD pipeline for a multi-region deployment where a new release must first deploy to a canary region representing 5% of traffic, be automatically monitored for error-rate regression for 30 minutes, and only then proceed to full rollout, with automatic rollback if error rates spike. What should you recommend?", "options": [{"id": "a", "text": "A deployment pipeline stage that deploys to the canary region, gates progression on Application Insights-based automated health checks/approval, and triggers automatic rollback on failure before promoting to remaining regions"}, {"id": "b", "text": "Deploy directly to all regions simultaneously with no staged rollout"}, {"id": "c", "text": "Manually deploy to production and monitor logs informally afterward"}, {"id": "d", "text": "Skip monitoring entirely and rely on customer complaints to detect issues"}], "correct": ["a"], "explanation": "A staged pipeline that deploys to a canary region first, uses automated gates based on Application Insights metrics (such as error rate) to decide whether to proceed, and includes automatic rollback logic if thresholds are breached, directly implements the described progressive delivery and safety requirements. Deploying to all regions simultaneously provides no opportunity to catch regressions before they affect all users."}, {"id": "q044", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are evaluating migration options for an on-premises three-tier application using the Cloud Adoption Framework. The business wants to modernize the web and app tiers to PaaS while keeping the SQL Server database largely unchanged during an initial migration phase, deferring database modernization to a later phase. What migration strategy best fits the initial phase?", "options": [{"id": "a", "text": "Rehost the database on an Azure VM (IaaS) while replatforming the web/app tiers to App Service, deferring further database modernization"}, {"id": "b", "text": "Refactor the entire application, including a full database schema redesign, in the first phase"}, {"id": "c", "text": "Rearchitect only the database tier and leave the web/app tiers completely unchanged on-premises"}, {"id": "d", "text": "Rebuild the entire application from scratch before migrating anything"}], "correct": ["a"], "explanation": "This mixed strategy\u2014replatforming the web/app tiers to PaaS while rehosting the database as-is on an IaaS VM\u2014matches the stated goal of modernizing compute quickly while deferring database changes to a later phase, which is a common, lower-risk incremental approach under the Cloud Adoption Framework. Redesigning the database schema in the first phase directly contradicts the stated requirement to keep the database largely unchanged initially."}, {"id": "q045", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a migration approach for 300 GB of unstructured data currently on an on-premises NAS device, to be moved into Azure Blob Storage with the least disruption, given the company has a reliable 1 Gbps internet connection and no urgent deadline. What should you recommend?", "options": [{"id": "a", "text": "AzCopy or Azure Storage Explorer performing an online transfer over the existing internet connection"}, {"id": "b", "text": "Order an Azure Data Box device for a 300 GB transfer"}, {"id": "c", "text": "Ship physical hard drives via courier with no encryption"}, {"id": "d", "text": "Do not migrate; leave the data on-premises indefinitely"}], "correct": ["a"], "explanation": "With a reliable 1 Gbps connection, no urgent deadline, and a relatively modest 300 GB dataset, an online transfer using AzCopy or Storage Explorer is simpler and faster to set up than ordering, waiting for, filling, shipping, and processing a Data Box appliance, which is typically justified for much larger datasets or constrained bandwidth. Data Box is more appropriate when bandwidth is limited or data volume is very large (multiple terabytes or more)."}, {"id": "q046", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing hybrid network connectivity where a company needs redundant connections to Azure for a mission-critical workload: a primary ExpressRoute circuit and a VPN gateway configured as an automatic failover path if the ExpressRoute circuit becomes unavailable. What should you recommend to ensure automatic failover between the two paths?", "options": [{"id": "a", "text": "Configure ExpressRoute and Site-to-Site VPN connections to the same virtual network gateway resource setup (coexistence), with routing preferences (e.g., BGP path attributes) so that traffic prefers ExpressRoute and automatically shifts to VPN if ExpressRoute fails"}, {"id": "b", "text": "Configure only the ExpressRoute circuit with no VPN backup"}, {"id": "c", "text": "Manually change routing configuration during an ExpressRoute outage"}, {"id": "d", "text": "Use two independent virtual networks with no shared routing"}], "correct": ["a"], "explanation": "ExpressRoute/VPN Gateway coexistence lets both paths connect to the same virtual network, and with BGP-based routing preferences ExpressRoute is normally preferred while traffic automatically shifts to the VPN path if the ExpressRoute circuit becomes unavailable, without manual intervention. Manually changing routing during an outage does not meet the 'automatic' failover requirement."}, {"id": "q047", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing network security for a hub-and-spoke topology where spoke virtual networks contain sensitive workloads that must never be able to initiate outbound connections to the internet, while still allowing inbound connections from an approved partner IP range through a shared firewall in the hub. What should you recommend?", "options": [{"id": "a", "text": "Configure NSGs on the spoke subnets to deny all outbound internet traffic, user-defined routes forcing traffic through the hub firewall, and firewall rules permitting only the approved partner inbound range"}, {"id": "b", "text": "Allow unrestricted outbound internet access from all spokes for simplicity"}, {"id": "c", "text": "Rely solely on Azure DDoS Protection Basic for this requirement"}, {"id": "d", "text": "Place all workloads directly on the internet with public IPs and no filtering"}], "correct": ["a"], "explanation": "Combining subnet-level NSGs that deny outbound internet traffic, user-defined routes that force all spoke traffic through the centralized hub firewall, and firewall rules that permit only the specific approved partner inbound range together achieve both the outbound restriction and the controlled inbound access. Allowing unrestricted outbound access directly contradicts the stated requirement."}, {"id": "q048", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a global routing and load-balancing solution for an application deployed across three Azure regions and one on-premises datacenter (during a phased migration), where traffic should be weighted 70% to Azure and 30% to on-premises until the migration completes, and later shift to 100% Azure. What should you recommend?", "options": [{"id": "a", "text": "Azure Traffic Manager using the Weighted routing method, with weights adjustable over time as the migration progresses"}, {"id": "b", "text": "Azure Load Balancer (Layer 4) only, which cannot route across separate datacenters"}, {"id": "c", "text": "A static DNS A record pointed permanently at the on-premises datacenter"}, {"id": "d", "text": "Azure Bastion"}], "correct": ["a"], "explanation": "Traffic Manager's Weighted routing method allows administrators to assign and later adjust traffic percentages across multiple endpoints, including a mix of Azure regions and an on-premises endpoint, making it well suited to a phased migration where the split changes over time. Azure Load Balancer operates within a region on private/public IP endpoints and cannot perform this kind of cross-datacenter global weighted routing."}, {"id": "q049", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You need to recommend a solution to allow administrators to securely connect via RDP/SSH to VMs in a virtual network that has no public IP addresses assigned to any VM, without deploying a jump box VM that must itself be patched and maintained. What should you recommend?", "options": [{"id": "a", "text": "Azure Bastion deployed in the virtual network"}, {"id": "b", "text": "Assign public IP addresses directly to each VM for RDP/SSH access"}, {"id": "c", "text": "Deploy and maintain a dedicated jump-box VM with a public IP"}, {"id": "d", "text": "Disable network security groups on the VM subnet"}], "correct": ["a"], "explanation": "Azure Bastion is a fully managed PaaS service that provides secure RDP/SSH connectivity to VMs over TLS directly through the Azure portal, without requiring any public IP on the target VMs and without the customer needing to deploy or patch a jump-box VM. Assigning public IPs directly to VMs increases their attack surface and directly contradicts the 'no public IP' requirement."}, {"id": "q050", "domain": "Design infrastructure solutions", "type": "single", "correct_count": 1, "question": "You are designing a load-balancing and routing solution for a set of internal microservices running in AKS that need Layer 7 path-based routing (e.g., /orders to one service, /inventory to another) purely within the cluster, without needing global multi-region routing. What should you recommend?", "options": [{"id": "a", "text": "An Ingress controller (such as the AKS-managed NGINX or Application Gateway Ingress Controller) providing Layer 7 path-based routing within the cluster"}, {"id": "b", "text": "Azure Front Door for intra-cluster routing"}, {"id": "c", "text": "Azure Traffic Manager for intra-cluster routing"}, {"id": "d", "text": "A Layer 4 Azure Load Balancer as the sole routing mechanism for path-based rules"}], "correct": ["a"], "explanation": "An Ingress controller operates at Layer 7 within the Kubernetes cluster and can route requests to different backend services based on URL path, which is exactly the intra-cluster routing capability needed here. Front Door and Traffic Manager are global, DNS/edge-level services intended for routing across regions or datacenters, not for path-based routing within a single cluster, and a Layer 4 load balancer has no awareness of HTTP paths."}];
+</script>
+<script>
+(function(){
+"use strict";
+
+var TIME_LIMIT_SEC = 100 * 60; // 100 minutes
+var PASS_RATIO = 0.70;
+var MAX_WARNINGS = 3;
+
+var TIER_TITLE = "Mock Test 3";
+var TIER_SUBTITLE = "Challenge";
+var MOCK_DATA = MOCK_QUESTIONS;
+
+var state = {
+  questions:[],
+  answers:{},       // qid -> array of selected option ids
+  flags:{},         // qid -> true
+  index:0,
+  timeLeft:TIME_LIMIT_SEC,
+  timerHandle:null,
+  warnings:0,
+  submitted:false,
+  startedAt:null,
+  finishedAt:null,
+  reviewFilter:"all"
+};
+
+function $(id){return document.getElementById(id);}
+function el(tag, cls, html){var e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e;}
+
+/* ---------------- Screen routing ---------------- */
+function goTo(name){
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active");});
+  $("screen-"+name).classList.add("active");
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+$("start-exam-btn") && $("start-exam-btn").addEventListener("click", function(){ startExam(); });
+
+/* ---------------- Exam bootstrap ---------------- */
+function startExam(){
+  state.questions = MOCK_DATA;
+  state.answers = {};
+  state.flags = {};
+  state.index = 0;
+  state.timeLeft = TIME_LIMIT_SEC;
+  state.warnings = 0;
+  state.submitted = false;
+  state.startedAt = Date.now();
+
+  $("exam-tier-label").textContent = TIER_TITLE + " (" + TIER_SUBTITLE + ")";
+  buildQnav();
+  renderQuestion(0);
+  updateStats();
+  goTo("exam");
+  startTimer();
+}
+
+/* ---------------- Timer ---------------- */
+function startTimer(){
+  clearInterval(state.timerHandle);
+  updateTimerDisplay();
+  state.timerHandle = setInterval(function(){
+    if(state.submitted) return;
+    state.timeLeft--;
+    updateTimerDisplay();
+    if(state.timeLeft <= 0){
+      state.timeLeft = 0;
+      updateTimerDisplay();
+      clearInterval(state.timerHandle);
+      finishExam(true, "time");
+    }
+  }, 1000);
+}
+function updateTimerDisplay(){
+  var m = Math.floor(state.timeLeft/60), s = state.timeLeft%60;
+  var str = (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  $("timer-display").textContent = str;
+  var pill = $("timer-pill");
+  if(state.timeLeft <= 300){ pill.classList.add("low"); } else { pill.classList.remove("low"); }
+}
+
+/* ---------------- Question rendering ---------------- */
+function renderQuestion(idx){
+  state.index = idx;
+  var q = state.questions[idx];
+  $("q-index").textContent = (idx+1);
+  $("q-domain-chip").textContent = q.domain;
+  $("q-text").textContent = q.question;
+  $("q-hint").textContent = q.type === "multi"
+      ? ("Select exactly " + q.correct_count + " answers.")
+      : "Select one answer.";
+
+  var optWrap = $("q-options");
+  optWrap.innerHTML = "";
+  var selected = state.answers[q.id] || [];
+  var letters = {a:"A",b:"B",c:"C",d:"D",e:"E",f:"F"};
+
+  q.options.forEach(function(opt){
+    var isSel = selected.indexOf(opt.id) !== -1;
+    var row = el("div","option"+(isSel?" selected":""));
+    var inputType = q.type === "multi" ? "checkbox" : "radio";
+    var inputId = "opt-"+q.id+"-"+opt.id;
+    row.innerHTML =
+      '<input type="'+inputType+'" name="q-'+q.id+'" id="'+inputId+'" '+(isSel?"checked":"")+'>' +
+      '<label for="'+inputId+'"><span class="opt-key">'+letters[opt.id]+'.</span> '+escapeHtml(opt.text)+'</label>';
+    optWrap.appendChild(row);
+    var input = row.querySelector("input");
+    input.addEventListener("change", function(){ onOptionToggle(q, opt.id, input.checked); });
+    row.addEventListener("click", function(e){
+      if(e.target.tagName.toLowerCase() === "input") return;
+      input.checked = q.type === "multi" ? !input.checked : true;
+      input.dispatchEvent(new Event("change"));
+    });
+  });
+
+  $("flag-btn").classList.toggle("active", !!state.flags[q.id]);
+  $("flag-btn").innerHTML = state.flags[q.id] ? "🚩 Flagged — click to unflag" : "🚩 Flag for review";
+  $("prev-btn").disabled = idx === 0;
+  $("next-btn").textContent = idx === state.questions.length - 1 ? "Finish →" : "Next →";
+
+  highlightNav();
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function onOptionToggle(q, optId, checked){
+  var arr = state.answers[q.id] ? state.answers[q.id].slice() : [];
+  if(q.type === "single"){
+    arr = checked ? [optId] : [];
+  } else {
+    if(checked){
+      if(arr.indexOf(optId) === -1) arr.push(optId);
+      if(arr.length > q.correct_count){
+        arr.shift();
+      }
+    } else {
+      arr = arr.filter(function(x){return x!==optId;});
+    }
+  }
+  if(arr.length === 0){ delete state.answers[q.id]; } else { state.answers[q.id] = arr; }
+  renderQuestion(state.index);
+  updateStats();
+  updateNavBtn(state.index);
+}
+
+/* ---------------- Navigation ---------------- */
+$("prev-btn") && $("prev-btn").addEventListener("click", function(){
+  if(state.index > 0) renderQuestion(state.index - 1);
+});
+$("next-btn") && $("next-btn").addEventListener("click", function(){
+  if(state.index < state.questions.length - 1){ renderQuestion(state.index + 1); }
+  else { openSubmitConfirm(); }
+});
+$("flag-btn") && $("flag-btn").addEventListener("click", function(){
+  var q = state.questions[state.index];
+  state.flags[q.id] = !state.flags[q.id];
+  renderQuestion(state.index);
+  updateStats();
+});
+
+function buildQnav(){
+  var grid = $("qnav-grid");
+  grid.innerHTML = "";
+  state.questions.forEach(function(q, i){
+    var b = el("button","qnav-btn", String(i+1));
+    b.addEventListener("click", function(){ renderQuestion(i); });
+    grid.appendChild(b);
+  });
+}
+function updateNavBtn(i){
+  var btn = $("qnav-grid").children[i];
+  var q = state.questions[i];
+  btn.classList.toggle("answered", !!state.answers[q.id]);
+  btn.classList.toggle("flagged", !!state.flags[q.id]);
+}
+function highlightNav(){
+  var grid = $("qnav-grid");
+  Array.prototype.forEach.call(grid.children, function(btn, i){
+    var q = state.questions[i];
+    btn.classList.toggle("current", i === state.index);
+    btn.classList.toggle("answered", !!state.answers[q.id]);
+    btn.classList.toggle("flagged", !!state.flags[q.id]);
+  });
+}
+
+function updateStats(){
+  var answeredCount = Object.keys(state.answers).length;
+  var flaggedCount = Object.keys(state.flags).filter(function(k){return state.flags[k];}).length;
+  $("stat-answered").textContent = answeredCount;
+  $("stat-flagged").textContent = flaggedCount;
+  var total = state.questions.length;
+  var pct = total ? Math.round((answeredCount/total)*100) : 0;
+  $("progress-fill").style.width = pct + "%";
+  $("progress-text").textContent = answeredCount + " / " + total + " answered";
+}
+
+/* ---------------- Submit flow ---------------- */
+$("submit-exam-btn") && $("submit-exam-btn").addEventListener("click", openSubmitConfirm);
+
+function openSubmitConfirm(){
+  var total = state.questions.length;
+  var answered = Object.keys(state.answers).length;
+  var unanswered = total - answered;
+  $("submit-confirm-text").textContent = unanswered > 0
+    ? ("You have " + unanswered + " unanswered question(s). Once submitted, you cannot change your answers. Are you sure you want to submit?")
+    : "All questions are answered. Once submitted, you cannot change your answers. Are you sure you want to submit?";
+  $("overlay-submit").classList.add("active");
+}
+$("cancel-submit-btn") && $("cancel-submit-btn").addEventListener("click", function(){
+  $("overlay-submit").classList.remove("active");
+});
+$("confirm-submit-btn") && $("confirm-submit-btn").addEventListener("click", function(){
+  $("overlay-submit").classList.remove("active");
+  finishExam(false, "manual");
+});
+
+function finishExam(auto, reason){
+  if(state.submitted) return;
+  state.submitted = true;
+  state.finishedAt = Date.now();
+  clearInterval(state.timerHandle);
+  if(auto && reason === "warnings"){
+    $("overlay-autosubmit").classList.add("active");
+  } else {
+    showResults();
+  }
+}
+$("ack-autosubmit-btn") && $("ack-autosubmit-btn").addEventListener("click", function(){
+  $("overlay-autosubmit").classList.remove("active");
+  showResults();
+});
+
+/* ---------------- Tab-switch detection ---------------- */
+document.addEventListener("visibilitychange", function(){
+  if(document.hidden && $("screen-exam").classList.contains("active") && !state.submitted){
+    state.warnings++;
+    if(state.warnings >= MAX_WARNINGS){
+      finishExam(true, "warnings");
+    } else {
+      $("warn-count-current").textContent = state.warnings;
+      $("overlay-tabwarn").classList.add("active");
+    }
+  }
+});
+$("return-exam-btn") && $("return-exam-btn").addEventListener("click", function(){
+  $("overlay-tabwarn").classList.remove("active");
+});
+
+/* ---------------- Scoring ---------------- */
+function isCorrect(q){
+  var sel = state.answers[q.id] || [];
+  if(sel.length !== q.correct.length) return false;
+  var a = sel.slice().sort();
+  var b = q.correct.slice().sort();
+  for(var i=0;i<a.length;i++){ if(a[i]!==b[i]) return false; }
+  return true;
+}
+
+function computeResults(){
+  var total = state.questions.length;
+  var correct=0, incorrect=0, skipped=0;
+  var byDomain = {};
+  state.questions.forEach(function(q){
+    if(!byDomain[q.domain]) byDomain[q.domain] = {correct:0, total:0};
+    byDomain[q.domain].total++;
+    var answered = !!state.answers[q.id];
+    if(!answered){ skipped++; return; }
+    if(isCorrect(q)){ correct++; byDomain[q.domain].correct++; }
+    else { incorrect++; }
+  });
+  var pct = total ? Math.round((correct/total)*100) : 0;
+  return {total:total, correct:correct, incorrect:incorrect, skipped:skipped, pct:pct, byDomain:byDomain};
+}
+
+/* ---------------- Results screen ---------------- */
+function showResults(){
+  var r = computeResults();
+  var pass = r.pct >= Math.round(PASS_RATIO*100);
+  $("score-big").textContent = r.pct + "%";
+  $("score-pct-label").textContent = r.correct + " / " + r.total + " correct — passing score is " + Math.round(PASS_RATIO*100) + "%";
+  var badge = $("pass-badge");
+  badge.className = "pass-badge " + (pass ? "pass" : "fail");
+  badge.textContent = pass ? "✓ PASS" : "✕ FAIL";
+  $("meta-correct").textContent = r.correct;
+  $("meta-incorrect").textContent = r.incorrect;
+  $("meta-skipped").textContent = r.skipped;
+
+  var used = TIME_LIMIT_SEC - state.timeLeft;
+  var mm = Math.floor(used/60), ss = used%60;
+  $("meta-time").textContent = mm + "m " + (ss<10?"0":"")+ss + "s";
+
+  var body = $("domain-breakdown-body");
+  body.innerHTML = "";
+  Object.keys(r.byDomain).forEach(function(domain){
+    var d = r.byDomain[domain];
+    var pctD = d.total ? Math.round((d.correct/d.total)*100) : 0;
+    var fillClass = pctD >= 70 ? "fill-good" : (pctD >= 50 ? "fill-mid" : "fill-low");
+    var row = el("div","domain-row");
+    row.innerHTML =
+      '<div class="head"><span class="name">'+domain+'</span><span class="score">'+d.correct+'/'+d.total+' ('+pctD+'%)</span></div>' +
+      '<div class="domain-bar"><div class="fill '+fillClass+'" style="width:'+pctD+'%"></div></div>';
+    body.appendChild(row);
+  });
+
+  goTo("results");
+}
+
+$("retake-btn") && $("retake-btn").addEventListener("click", function(){ startExam(); });
+$("review-btn") && $("review-btn").addEventListener("click", function(){ state.reviewFilter="all"; renderReview(); goTo("review"); });
+$("review-back-btn") && $("review-back-btn").addEventListener("click", function(){ goTo("results"); });
+
+/* ---------------- Review screen ---------------- */
+document.querySelectorAll("#review-filters .filter-chip").forEach(function(chip){
+  chip.addEventListener("click", function(){
+    document.querySelectorAll("#review-filters .filter-chip").forEach(function(c){c.classList.remove("active");});
+    chip.classList.add("active");
+    state.reviewFilter = chip.getAttribute("data-filter");
+    renderReview();
+  });
+});
+
+function renderReview(){
+  var list = $("review-list");
+  list.innerHTML = "";
+  var letters = {a:"A",b:"B",c:"C",d:"D",e:"E",f:"F"};
+
+  state.questions.forEach(function(q, i){
+    var sel = state.answers[q.id] || [];
+    var answered = sel.length > 0;
+    var correct = answered && isCorrect(q);
+    var status = !answered ? "skipped" : (correct ? "correct" : "incorrect");
+    var flagged = !!state.flags[q.id];
+
+    if(state.reviewFilter !== "all"){
+      if(state.reviewFilter === "flagged" && !flagged) return;
+      if(state.reviewFilter !== "flagged" && state.reviewFilter !== status) return;
+    }
+
+    var card = el("div","review-card");
+    var statusLabel = status === "correct" ? "Correct" : (status === "incorrect" ? "Incorrect" : "Skipped");
+    var statusClass = status === "correct" ? "rc-correct" : (status === "incorrect" ? "rc-incorrect" : "rc-skipped");
+
+    var optsHtml = q.options.map(function(opt){
+      var isYours = sel.indexOf(opt.id) !== -1;
+      var isRight = q.correct.indexOf(opt.id) !== -1;
+      var cls = "rc-opt";
+      var tag = "";
+      if(isRight){ cls += " rc-correct-ans"; tag += '<span class="rc-tag correct">Correct</span>'; }
+      if(isYours && !isRight){ cls += " rc-your-wrong"; tag += '<span class="rc-tag your">Your answer</span>'; }
+      if(isYours && isRight){ tag += '<span class="rc-tag your" style="background:var(--green)">Your answer</span>'; }
+      return '<div class="'+cls+'"><span class="opt-key">'+letters[opt.id]+'.</span><span style="flex-grow:1">'+escapeHtml(opt.text)+'</span>'+tag+'</div>';
+    }).join("");
+
+    card.innerHTML =
+      '<div class="rc-top"><span class="q-count">Question '+(i+1)+' &middot; '+q.domain+(flagged?' &middot; 🚩 Flagged':'')+'</span><span class="rc-status '+statusClass+'">'+statusLabel+'</span></div>' +
+      '<div class="rc-q">'+escapeHtml(q.question)+'</div>' +
+      optsHtml +
+      '<div class="rc-explain"><b>Explanation:</b> '+escapeHtml(q.explanation)+'</div>';
+    list.appendChild(card);
+  });
+
+  if(!list.children.length){
+    list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px 0;">No questions match this filter.</div>';
+  }
+}
+
+})();
+
+</script>
+</body>
+</html>
