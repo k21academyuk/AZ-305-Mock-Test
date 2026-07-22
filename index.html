@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ-305 Mock Tests — Designing Microsoft Azure Infrastructure Solutions</title>
+<style>
+:root{
+  --az-blue:#0078d4;
+  --az-blue-dark:#005a9e;
+  --az-blue-darker:#004578;
+  --az-navy:#0b1f33;
+  --bg:#f3f6fa;
+  --card:#ffffff;
+  --border:#dde3ea;
+  --text:#1b2733;
+  --muted:#5b6b7c;
+  --green:#107c10;
+  --red:#d13438;
+  --radius:10px;
+  --shadow:0 2px 8px rgba(11,31,51,0.08);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+header.topbar{
+  background:linear-gradient(135deg,var(--az-navy),var(--az-blue-darker));
+  color:#fff;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+header.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;}
+header.topbar .brand .logo{
+  width:34px;height:34px;border-radius:8px;background:var(--az-blue);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;
+}
+.container{max-width:900px;margin:0 auto;padding:32px 20px 60px;}
+.hero{text-align:center;margin-bottom:8px;}
+.hero p.kicker{color:var(--az-blue-dark);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px;}
+.hero h1{font-size:27px;margin:4px 0 10px;color:var(--az-navy);}
+.hero p.sub{color:var(--muted);max-width:620px;margin:0 auto;font-size:15px;}
+.badge-row{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.badge{background:#eaf3fb;color:var(--az-blue-dark);border:1px solid #cfe3f5;padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:600;}
+
+h2.section{font-size:16px;color:var(--az-navy);margin:34px 0 14px;}
+
+.card{
+  display:flex;align-items:center;gap:16px;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:12px;
+}
+.card .icon{
+  width:46px;height:46px;border-radius:10px;background:#eaf3fb;color:var(--az-blue-dark);
+  display:flex;align-items:center;justify-content:center;font-family:monospace;font-weight:700;font-size:14px;flex-shrink:0;
+}
+.card .meta{flex:1;min-width:0;}
+.card .meta .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 9px;border-radius:20px;margin-bottom:4px;}
+.tag.starter{background:#e6f4e6;color:var(--green);}
+.tag.practice{background:#eaf3fb;color:var(--az-blue-dark);}
+.tag.challenge{background:#fdecec;color:var(--red);}
+.card .meta h3{margin:2px 0 2px;font-size:16.5px;}
+.card .meta p{margin:0;color:var(--muted);font-size:13px;}
+.card a.dlbtn{
+  flex-shrink:0;text-decoration:none;color:var(--az-blue-dark);background:#fff;border:1px solid var(--border);
+  padding:9px 18px;border-radius:8px;font-weight:600;font-size:13.5px;transition:background .15s,border-color .15s;
+}
+.card a.dlbtn:hover{background:#eaf3fb;border-color:var(--az-blue);}
+
+.domain-table{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:14px;background:var(--card);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.domain-table th,.domain-table td{padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;}
+.domain-table th{background:var(--az-navy);color:#fff;}
+.domain-table td:last-child,.domain-table th:last-child{text-align:right;}
+
+footer.footnote{text-align:center;color:var(--muted);font-size:12.5px;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">AZ</span> AZ-305 Exam Simulator</div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <p class="kicker">Microsoft Certification Practice Hub</p>
+    <h1>AZ-305: Designing Microsoft Azure Infrastructure Solutions</h1>
+    <p class="sub">Practice in a realistic exam environment with timed mock exams, question navigation, and instant feedback. Choose a mock exam below and start your AZ-305 preparation.</p>
+    <div class="badge-row">
+      <span class="badge">3 Mock Exams</span>
+      <span class="badge">50 Questions Per Exam</span>
+      <span class="badge">100 Minute Limit</span>
+      <span class="badge">4 Domains</span>
+    </div>
+  </div>
+
+  <h2 class="section">Choose your mock exam</h2>
+
+  <div class="card">
+    <div class="icon">&lt;/&gt;</div>
+    <div class="meta">
+      <span class="tag starter">Starter</span>
+      <h3>AZ-305 Mock Exam 1</h3>
+      <p>Begin with the first simulator and get familiar with the exam flow and question style. Code · HTML</p>
+    </div>
+    <a class="dlbtn" href="az305-mock-test-1.html">Start Exam</a>
+  </div>
+
+  <div class="card">
+    <div class="icon">&lt;/&gt;</div>
+    <div class="meta">
+      <span class="tag practice">Practice</span>
+      <h3>AZ-305 Mock Exam 2</h3>
+      <p>Reinforce your knowledge with a second full-length practice set covering fresh scenarios. Code · HTML</p>
+    </div>
+    <a class="dlbtn" href="az305-mock-test-2.html">Start Exam</a>
+  </div>
+
+  <div class="card">
+    <div class="icon">&lt;/&gt;</div>
+    <div class="meta">
+      <span class="tag challenge">Challenge</span>
+      <h3>AZ-305 Mock Exam 3</h3>
+      <p>Use the third mock exam as a final readiness check before sitting the real exam. Code · HTML</p>
+    </div>
+    <a class="dlbtn" href="az305-mock-test-3.html">Start Exam</a>
+  </div>
+
+  <h2 class="section">AZ-305 domain coverage</h2>
+  <p style="color:var(--muted);font-size:14px;margin-top:0;">All three mock exams are aligned to the four domain areas below, matching the official exam guide's skills-measured weighting.</p>
+  <table class="domain-table">
+    <thead><tr><th>Domain</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>Design identity, governance, and monitoring solutions</td><td>25–30%</td></tr>
+      <tr><td>Design data storage solutions</td><td>20–25%</td></tr>
+      <tr><td>Design business continuity solutions</td><td>15–20%</td></tr>
+      <tr><td>Design infrastructure solutions</td><td>30–35%</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="footnote">AZ-305 practice questions are original and independently written; not affiliated with or endorsed by Microsoft.</footer>
+</div>
+
+</body>
+</html>
